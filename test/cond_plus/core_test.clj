@@ -2,18 +2,6 @@
   (:require [clojure.test :refer :all]
             [cond-plus.core :refer :all]))
 
-; (test 1 'cond (cond (1)))
-; (test 1 'cond (cond (#f) (1)))
-; (test 1 'cond (cond (#f 7) (1)))
-; (test 2 'cond (cond (#f 7) (1 => add1)))
-; (test add1 'cond (let ([=> 9]) (cond (#f 7) (1 => add1))))
-
-(defmacro incorrect-cond+
-  ;; This is necessary to get around macroexpand raising a compiler exception.
-  ;; I could write a `compiler-thrown?` macro, but that's a lot of work lol
-  [& clauses]
-  `(apply #'cond+ nil nil [~clauses]))
-
 (deftest cond+-test
   (testing "returns nil when given no input"
     (is (nil? (cond+))))
@@ -68,57 +56,40 @@
               [(> 1 2) :ok]
               [(= 1 1) (swap! view inc) :second])))
       (is (= 1 @view))))
-  (testing ":else"
+  (testing "else"
     (testing "always returns expr"
-      (is (= :first (cond+ [:else :first]))))
+      (is (= :first (cond+ [else :first]))))
     (testing "returns expr when other branches are falsey"
       (is (= :equal
              (cond+
               [(< 3 3) :greater]
               [(> 3 3) :less]
-              [:else :equal]))))
+              [else :equal]))))
     (testing "exprs have an implicit do"
-      (is (= :second (cond+ [:else :first :second])))
+      (is (= :second (cond+ [else :first :second])))
       (is (= :second
              (cond+
               [(< 3 3) :greater]
               [(> 3 3) :less]
-              [:else :equal :second])))
+              [else :equal :second])))
       (let [view (atom 0)]
         (is (= :second
                (cond+
                 [(> 1 2) :ok]
-                [:else (swap! view inc) :second])))
-        (is (= 1 @view))))
-    (testing "requires an expr"
-      (is (thrown? IllegalArgumentException
-                   (incorrect-cond+
-                    [false :first]
-                    [:else]))))
-    (testing "can only be used in the last position"
-      (is (thrown? IllegalArgumentException
-                   (incorrect-cond+
-                    [:else :first]
-                    [true :second])))))
-  (testing ":>"
-    (testing "calls given function on result of test"
-      (is (= 1 (cond+ [[1 2 3] :> first])))
-      (is (= 2 (cond+ [(next [1 2 3]) :> first])))
-      (is (= [-2 -3] (cond+ [(next [1 2 3]) :> (fn [x] (map - x))])))
-      (is (= 2 (cond+ [(:key {:key 1}) :> inc]))))
+                [else (swap! view inc) :second])))
+        (is (= 1 @view)))))
+  (testing "=>"
+    (testing "calls given function on result of first true test"
+      (is (= 1 (cond+ [[1 2 3] => first])))
+      (is (= 2 (cond+ [(next [1 2 3]) => first])))
+      (is (= [-2 -3] (cond+ [(next [1 2 3]) => (fn [x] (map - x))])))
+      (is (= 2 (cond+ [(:key {:key 1}) => inc])))
+      (is (= 2 (cond+ [false 7] [1 => inc])))
+      )
     (testing "doesn't call given function when test returns false value"
       (is (= false (cond+
-                    [(:miss {:key 1}) :> inc]
-                    [:else false]))))
-    (testing "requires a function in the final position"
-      (is (thrown? IllegalArgumentException
-                   (incorrect-cond+
-                     [[1 2 3] :>])))
-      (is (thrown? IllegalArgumentException
-                   (incorrect-cond+
-                     [[1 2 3] :> 1]))))
-    )
-  )
+                    [(:miss {:key 1}) => inc]
+                    [true false]))))))
 
 ;; Borrowed from Clojure Core
 (defn maintains-identity [f]

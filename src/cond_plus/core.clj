@@ -12,13 +12,13 @@
             (throw (IllegalArgumentException. "clause is not in a vector"))
             (let [test (first line)
                   value (next line)]
-              (if (= :else test)
+              (if (= 'else test)
                 (if (seq others)
                   (throw (IllegalArgumentException. ":else not last"))
                   (if (nil? value)
                     (throw (IllegalArgumentException. "missing expression in else clause"))
                     `(let [] ~@value)))
-                (if (= :> (first value))
+                (if (= '=> (first value))
                   (if (= 2 (count value))
                     (let [exp (cond-loop others)
                           gen (gensym)]
