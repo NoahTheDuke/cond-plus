@@ -2,25 +2,6 @@
   (:require [clojure.test :refer :all]
             [cond-plus.core :refer :all]))
 
-; (test 'greater 'cond (cond ((> 3 2) 'greater)
-;                            ((< 3 2) 'less)))
-; (test 'equal 'cond (cond ((> 3 3) 'greater)
-;                          ((< 3 3) 'less)
-;                          (else 'equal)))
-; (test 2 'cond
-;       (cond ((assv 'b '((a 1) (b 2))) => cadr)
-;             (else #f)))
-; (test #f 'cond (cond ((assv 'z '((a 1) (b 2))) => cadr)
-;                      (else #f)))
-; (syntax-test #'(cond ((assv 'z '((a 1) (b 2))) => cadr)
-;                      (else 8)
-;                      (else #f)))
-; (test #f 'cond (let ([else #f])
-;                  (cond ((assv 'z '((a 1) (b 2))) => cadr)
-;                        (else 8)
-;                        (#t #f))))
-; (test 'second 'cond (cond ((< 1 2) (cons 1 2) 'second)))
-; (test 'second-again 'cond (cond ((> 1 2) 'ok) (else (cons 1 2) 'second-again)))
 ; (test 1 'cond (cond (1)))
 ; (test 1 'cond (cond (#f) (1)))
 ; (test 1 'cond (cond (#f 7) (1)))
@@ -43,9 +24,10 @@
     (is (nil? (cond+ nil [true true])))
     (is (nil? (cond+ [false true] nil))))
   (testing "returns test if no expr given"
-    (is (= '(1 2 3) (cond+ [(seq [1 2 3])])))
-    (is (nil? (cond+ [(seq [])])))
-    )
+    (is (= [1 2 3] (cond+ [(seq [1 2 3])])))
+    (is (= 1 (cond+ [1])))
+    (is (= 1 (cond+ [(first [1])])))
+    (is (= 1 (cond+ [false] [1]))))
   (testing "returns first expr when associated test is true"
     (is (= :first (cond+ [true :first])))
     (is (= :first (cond+
@@ -122,7 +104,12 @@
     (testing "calls given function on result of test"
       (is (= 1 (cond+ [[1 2 3] :> first])))
       (is (= 2 (cond+ [(next [1 2 3]) :> first])))
-      (is (= [-2 -3] (cond+ [(next [1 2 3]) :> (fn [x] (map - x))]))))
+      (is (= [-2 -3] (cond+ [(next [1 2 3]) :> (fn [x] (map - x))])))
+      (is (= 2 (cond+ [(:key {:key 1}) :> inc]))))
+    (testing "doesn't call given function when test returns false value"
+      (is (= false (cond+
+                    [(:miss {:key 1}) :> inc]
+                    [:else false]))))
     (testing "requires a function in the final position"
       (is (thrown? IllegalArgumentException
                    (incorrect-cond+
@@ -132,3 +119,60 @@
                      [[1 2 3] :> 1]))))
     )
   )
+
+;; Borrowed from Clojure Core
+(defn maintains-identity [f]
+  (are [x] (= (f x) x)
+      nil
+      false true
+      0 42
+      0.0 3.14
+      2/3
+      0M 1M
+      \c
+      "" "abc"
+      'sym
+      :kw
+      () '(1 2)
+      [] [1 2]
+      {} {:a 1 :b 2}
+      #{} #{1 2} ))
+
+(deftest original-cond-test
+  (are [x y] (= x y)
+    (cond+) nil
+
+    (cond+ [nil true]) nil
+    (cond+ [false true]) nil
+
+    (cond+ [true 1] [true (throw (new Exception "Exception which should never occur"))]) 1
+    (cond+ [nil 1] [false 2] [true 3] [true 4]) 3
+    (cond+ [nil 1] [false 2] [true 3] [true (throw (new Exception "Exception which should never occur"))]) 3)
+
+  ; false
+  (are [x]  (= (cond+ [x :a] [true :b]) :b)
+    nil false )
+
+  ; true
+  (are [x]  (= (cond+ [x :a] [true :b]) :a)
+    true
+    0 42
+    0.0 3.14
+    2/3
+    0M 1M
+    \c
+    "" "abc"
+    'sym
+    :kw
+    () '(1 2)
+    [] [1 2]
+    {} {:a 1 :b 2}
+    #{} #{1 2} )
+
+  ; evaluation
+  (are [x y] (= x y)
+    (cond+ [(> 3 2) (+ 1 2)] [true :result] [true (throw (new Exception "Exception which should never occur"))]) 3
+    (cond+ [(< 3 2) (+ 1 2)] [true :result] [true (throw (new Exception "Exception which should never occur"))]) :result)
+
+  ; identity (= (cond+ [true x]) x)
+  (maintains-identity (fn [_] (cond+ [true _]))))
