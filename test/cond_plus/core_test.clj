@@ -36,13 +36,15 @@
             [(= 3 3) :equal]))))
   (testing "don't run exprs of non-truthy branches"
     (is (let [view (atom 0)]
-          (cond+ [false (swap! view inc)]
-                 [true :first])
+          (cond+
+           [false (swap! view inc)]
+           [true :first])
           (zero? @view))))
   (testing "runs exprs of first truthy branch"
     (let [view (atom 0)]
-      (is (= 1 (cond+ [true (swap! view inc)]
-                      [true :first])))
+      (is (= 1 (cond+
+                [true (swap! view inc)]
+                [true :first])))
       (is (= 1 @view))))
   (testing "exprs have an implicit do"
     (is (= :second (cond+ [(< 1 2) :first :second])))
@@ -56,6 +58,12 @@
               [(> 1 2) :ok]
               [(= 1 1) (swap! view inc) :second])))
       (is (= 1 @view))))
+  (testing "branches can use vectors or lists"
+    (is (= :equal
+           (cond+
+            ((< 3 3) :greater)
+            ((> 3 3) :less)
+            ((= 3 3) :equal)))))
   (testing "else"
     (testing "always returns expr"
       (is (= :first (cond+ [else :first]))))

@@ -8,7 +8,8 @@
       (let [line (first tests)
             others (next tests)]
         (when (some? line)
-          (if-not (vector? line)
+          (if-not (or (list? line)
+                      (vector? line))
             (throw (IllegalArgumentException. "clause is not in a vector"))
             (let [test (first line)
                   value (next line)]
