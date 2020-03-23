@@ -1,57 +1,43 @@
 # cond-plus
 
-An adaption of the Racket `cond` macro, updated for Clojure.
+An adaption of the Racket `cond` macro for Clojure.
 
 ## Usage
 
-The below is adapted from the [Racket docs](https://docs.racket-lang.org/reference/if.html?q=cond#%28form._%28%28lib._racket%2Fprivate%2Fletstx-scheme..rkt%29._cond%29%29):
+The below takes inspiration from the [Racket docs][1]:
 
-(*cond+* _cond-clause_ ...)
+[1]: https://docs.racket-lang.org/reference/if.html?q=cond#%28form._%28%28lib._racket%2Fprivate%2Fletstx-scheme..rkt%29._cond%29%29
+
+(*cond+* & _cond-clause_)
 
 ```
-cond-clause = [test-expr then-body ...+]
-            | [:else then-body ...+]
-            | [test-expr :> proc-expr]
+cond-clause = [test-expr & body]
+            | [test-expr :> fn-expr]
             | [test-expr]
+            | [:else & body]
 ```
 
-A `cond-clause` that starts with `:else` must be the last
-`cond-clause`.
+Each `test-expr` is evaluated one at a time. If the `test-expr` returns logical
+true (or is `:else`), the form is evaluated as described below and no further
+`cond-clause`s are evaluated. `(cond+)` returns `nil`.
 
-If no `cond-clause`s are present, the result is `nil`.
+### `[test-expr & body]`
+Evaluates `body` in an implicit `do`.
 
-If only a `[else then-body ...+]` is present, then the
-`then-body`s are evaluated. The results from all but the last
-`then-body` are ignored. The results of the last
-`then-body`, which is in tail position with respect to the
-`cond+` form, are the results for the whole `cond+`
-form.
+### `[test-expr :> fn-expr]`
+`fn-expr` must be a function that accepts one argument. The result of the
+`test-expr` is passed to the `fn-expr` and that result is returned.
 
-Otherwise, the first `test-expr` is evaluated. If it produces
-`#f`, then the result is the same as a `cond+` form with
-the remaining `cond-clause`s, in tail position with respect to
-the original `cond+` form. Otherwise, evaluation depends on the
-form of the `cond-clause`:
+`=>` is also accepted for historical reasons.
 
-### `[test-expr then-body ...+]`
-The `then-body`s are
-evaluated in order, and the results from all but the last
-`then-body` are ignored. The results of the last
-`then-body`, which is in tail position with respect to the
-`cond+` form, provides the result for the whole `cond+`
-form.
+### `[test-expr]`
+The result of the `test-expr` is returned.
 
-### `[test-expr => proc-expr]`
-The `proc-expr` is
-evaluated, and it must produce a procedure that accepts one argument,
-otherwise it will raise an exception. The procedure is applied
-to the result of `test-expr` in tail position with respect to
-the `cond+` expression.
+### `[:else & body]`
+If an `[:else & body]` is present, it must be the last `cond-clause` and
+it must be the only `:else` clause. Evaluates `body` in an implicit `do`.
 
-`[test-expr]`
-The result of the `test-expr` is
-returned as the result of the `cond+` form. The
-`test-expr` is not in tail position.
+`else` is also accepted for historical reasons.
 
 ```clojure
 > (cond+)
@@ -71,17 +57,6 @@ nil
    [(next [1 2 3])])
 [2 3]
 ```
-
-### :else
-
-Recognized specially within forms like `cond+`. An
-`:else` form as an expression is a syntax error.
-
-
-### :>
-
-Recognized specially within forms like `cond+`. A
-`:>` form as an expression is a syntax error.
 
 
 ## License
