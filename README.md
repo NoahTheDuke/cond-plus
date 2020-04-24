@@ -8,9 +8,10 @@ The below takes inspiration from the [Racket docs][1]:
 
 [1]: https://docs.racket-lang.org/reference/if.html?q=cond#%28form._%28%28lib._racket%2Fprivate%2Fletstx-scheme..rkt%29._cond%29%29
 
-(*cond+* & _cond-clause_)
 
 ```
+(cond+ & cond-clause)
+
 cond-clause = [test-expr & body]
             | [test-expr :> fn-expr]
             | [test-expr]
@@ -28,7 +29,7 @@ Evaluates `body` in an implicit `do`.
 `fn-expr` must be a function that accepts one argument. The result of the
 `test-expr` is passed to the `fn-expr` and that result is returned.
 
-`=>` is also accepted for historical reasons.
+`=>` is also accepted.
 
 ### `[test-expr]`
 The result of the `test-expr` is returned.
@@ -37,7 +38,7 @@ The result of the `test-expr` is returned.
 If an `[:else & body]` is present, it must be the last `cond-clause` and
 it must be the only `:else` clause. Evaluates `body` in an implicit `do`.
 
-`else` is also accepted for historical reasons.
+`else` is also accepted.
 
 ```clojure
 > (cond+)
