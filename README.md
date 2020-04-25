@@ -13,7 +13,7 @@ nil
 > (cond+
    [(pos? -5) "doesn't get here"]
    [(zero? -5) "doesn't get here, either"]
-   [(neg? 5) :here])
+   [(neg? -5) :here])
 :here
 > (cond+
    [(next [1 2 3]) :> (fn [x] (map - x))])
