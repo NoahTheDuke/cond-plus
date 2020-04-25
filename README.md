@@ -2,43 +2,7 @@
 
 An adaption of the Racket `cond` macro for Clojure.
 
-## Usage
-
-The below takes inspiration from the [Racket docs][1]:
-
-[1]: https://docs.racket-lang.org/reference/if.html?q=cond#%28form._%28%28lib._racket%2Fprivate%2Fletstx-scheme..rkt%29._cond%29%29
-
-
-```
-(cond+ & cond-clause)
-
-cond-clause = [test-expr & body]
-            | [test-expr :> fn-expr]
-            | [test-expr]
-            | [:else & body]
-```
-
-Each `test-expr` is evaluated one at a time. If the `test-expr` returns logical
-true (or is `:else`), the form is evaluated as described below and no further
-`cond-clause`s are evaluated. `(cond+)` returns `nil`.
-
-### `[test-expr & body]`
-Evaluates `body` in an implicit `do`.
-
-### `[test-expr :> fn-expr]`
-`fn-expr` must be a function that accepts one argument. The result of the
-`test-expr` is passed to the `fn-expr` and that result is returned.
-
-`=>` is also accepted.
-
-### `[test-expr]`
-The result of the `test-expr` is returned.
-
-### `[:else & body]`
-If an `[:else & body]` is present, it must be the last `cond-clause` and
-it must be the only `:else` clause. Evaluates `body` in an implicit `do`.
-
-`else` is also accepted.
+Details can be found in the [docs](doc/intro.md).
 
 ```clojure
 > (cond+)
