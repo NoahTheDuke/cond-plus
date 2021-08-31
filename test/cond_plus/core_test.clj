@@ -1,6 +1,7 @@
 (ns cond-plus.core-test
-  (:require [clojure.test :refer :all]
-            [cond-plus.core :refer :all]))
+  (:require
+   [clojure.test :refer [are deftest is testing]]
+   [cond-plus.core :refer [cond+]]))
 
 (deftest cond-branch
   (testing "returns nil when given no input"
