@@ -9,10 +9,36 @@
 (def ^{:doc "Only useful to silence linter errors."} else)
 
 (defmacro cond+
-  "Each test-expr is evaluated one at a time. If the test-expr returns logical
-  true (or is :else), the form is evaluated as described below and no further
-  cond-clauses are evaluated. (cond+) returns nil."
-  [& body]
+  "Takes any number of clauses, which must be lists or vectors. The `test-expr` of the first clause is evaluated. If it's a logical true value (or the bare symbol `else`), then the rest of the clause is evaluated as described below and the resulting value is returned. Otherwise, repeat these steps for the next clauses. `(cond+)` returns `nil`.
+
+  ```
+  clause = [test-expr & body]
+         | [test-expr :> fn-expr]
+         | [test-expr]
+         | [:else & body]
+  ```
+
+  ### `[test-expr & body]`
+  Evaluates `body` in an implicit `do`.
+
+  ### `[test-expr :> fn-expr]`
+  `fn-expr` must be a function that accepts one argument. The result of the `test-expr` is passed to the `fn-expr` and that result is returned.
+
+  If an `fn-expr` is not provided or more than one form is included after the `:>`, an `IllegalArgumentError` is thrown.
+
+  The bare symbol `=>` can be used instead of `:>`.
+
+  ### `[test-expr]`
+  The result of the `test-expr` is returned.
+
+  ### `[:else & body]`
+  Evaluates `body` in an implicit `do`.
+
+  If an `:else` is not the last `cond-clause`, an `IllegalArgumentError` is
+  thrown.  If a `body` is not included, an `IllegalArgumentError` is thrown.
+
+  `else` can be used instead of `:else`."
+  [& clauses]
   (letfn
     [(cond-loop
        [tests]
@@ -45,30 +71,28 @@
                    ;; Else branch can't be empty
                    (if (nil? value)
                      (throw (IllegalArgumentException. "missing expression in :else clause"))
-                     `(do ~@value)))
+                     `(let [result# (do ~@value)] result#)))
                  ;; Recurse into the rest of the lines before processing each branch,
                  ;; because we will be unrolling the results into the else positions of
                  ;; each branch
-                 (let [exp (cond-loop others)
-                       gen (gensym)]
+                 (let [exp (cond-loop others)]
                    ;; nil branch
                    (if (nil? value)
-                     `(let [~gen ~test-expr]
-                        (if ~gen ~gen ~exp))
+                     `(let [result# ~test-expr]
+                        (if result# result# ~exp))
                      ;; :> needs to be in the first position of the value form to be
                      ;; properly handled
                      (if (#{'=> :>} (first value))
                        ;; :> branch needs exactly 1 additional form
                        (if (= 2 (count value))
-                         `(let [~gen ~test-expr]
-                            (if ~gen
-                              ;; Call the function with the result of the test-expr
-                              (~(second value) ~gen)
-                              ~exp))
+                         `(if-let [result# ~test-expr]
+                            ;; Call the function with the result of the test-expr
+                            (~(second value) result#)
+                            ~exp)
                          (throw (IllegalArgumentException. "bad :> clause")))
                        ;; everything else, aka a test and then any number of forms
                        ;; wrapped in a do
                        `(if ~test-expr
-                          (do ~@value)
+                          (let [result# (do ~@value)] result#)
                           ~exp))))))))))]
-    (cond-loop body)))
+    (cond-loop clauses)))
