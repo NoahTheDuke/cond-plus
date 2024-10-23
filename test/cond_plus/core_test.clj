@@ -1,6 +1,6 @@
 (ns cond-plus.core-test
   (:require
-   [cond-plus.core :refer [cond+]]
+   [cond-plus.core :refer [cond+ => else]]
    [lazytest.core :refer [defdescribe expect it causes-with-msg?]]
    [lazytest.experimental.interfaces.clojure-test :refer [are deftest]]))
 
@@ -171,7 +171,9 @@
                   [false :first]
                   [:else])))))
   (it "accepts symbol form"
-    (expect (= :first (cond+ [else :first])))))
+    (expect (= :first (cond+
+                       [false :zero]
+                       [else :first])))))
 
 (defdescribe combinations
   (it "Can combine different branch types"

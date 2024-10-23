@@ -2,6 +2,12 @@
   (:import
     (java.lang IllegalArgumentException)))
 
+#_{:clj-kondo/ignore [:uninitialized-var]}
+(def ^{:doc "Only useful to silence linter errors."} =>)
+
+#_{:clj-kondo/ignore [:uninitialized-var]}
+(def ^{:doc "Only useful to silence linter errors."} else)
+
 (defmacro cond+
   "Each test-expr is evaluated one at a time. If the test-expr returns logical
   true (or is :else), the form is evaluated as described below and no further
