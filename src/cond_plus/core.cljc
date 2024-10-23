@@ -1,4 +1,6 @@
-(ns cond-plus.core)
+(ns cond-plus.core
+  (:import
+    (java.lang IllegalArgumentException)))
 
 (defmacro cond+
   "Each test-expr is evaluated one at a time. If the test-expr returns logical
@@ -30,14 +32,13 @@
              (let [test-expr (first line)
                    value (next line)]
                ;; else should be in the final position
-               (if (or (= 'else test-expr)
-                       (= :else test-expr))
+               (if (#{'else :else} test-expr)
                  ;; Else branch needs to be in final place
                  (if (seq others)
                    (throw (IllegalArgumentException. ":else not last"))
                    ;; Else branch can't be empty
                    (if (nil? value)
-                     (throw (IllegalArgumentException. "missing expression in else clause"))
+                     (throw (IllegalArgumentException. "missing expression in :else clause"))
                      `(do ~@value)))
                  ;; Recurse into the rest of the lines before processing each branch,
                  ;; because we will be unrolling the results into the else positions of
@@ -50,16 +51,15 @@
                         (if ~gen ~gen ~exp))
                      ;; :> needs to be in the first position of the value form to be
                      ;; properly handled
-                     (if (or (= '=> (first value))
-                             (= :> (first value)))
+                     (if (#{'=> :>} (first value))
                        ;; :> branch needs exactly 1 additional form
-                       (if (not= 2 (count value))
-                         (throw (IllegalArgumentException. "bad => clause"))
+                       (if (= 2 (count value))
                          `(let [~gen ~test-expr]
                             (if ~gen
                               ;; Call the function with the result of the test-expr
                               (~(second value) ~gen)
-                              ~exp)))
+                              ~exp))
+                         (throw (IllegalArgumentException. "bad :> clause")))
                        ;; everything else, aka a test and then any number of forms
                        ;; wrapped in a do
                        `(if ~test-expr

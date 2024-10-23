@@ -1,1 +1,2 @@
-{:config-paths ["../resources/clj-kondo.exports/cond_plus/cond_plus/"]}
+{:config-paths ["../resources/clj-kondo.exports/cond_plus/cond_plus/"]
+ :linters {:clojure-lsp/unused-public-var {:level :off}}}
