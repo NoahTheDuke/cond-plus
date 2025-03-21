@@ -1,6 +1,6 @@
 (ns cond-plus.core
-  (:import
-    (java.lang IllegalArgumentException)))
+  #?(:clj (:import
+           (java.lang IllegalArgumentException))))
 
 #_{:clj-kondo/ignore [:uninitialized-var]}
 (def ^{:doc "Only useful to silence linter errors."} =>)
@@ -50,7 +50,7 @@
            ;; Only accept lines wrapped in () or []
            (if-not (or (list? line)
                        (vector? line))
-             (throw (IllegalArgumentException. "clause is not in a vector"))
+             (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "clause is not in a vector"))
              ;; Because a line is a sequence, we'll step through the line form by form.
              ;; The first form is called text-expr, and then we call next on the rest
              ;; of the forms, and call the result value.
@@ -67,10 +67,10 @@
                (if (#{'else :else} test-expr)
                  ;; Else branch needs to be in final place
                  (if (seq others)
-                   (throw (IllegalArgumentException. ":else not last"))
+                   (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) ":else not last"))
                    ;; Else branch can't be empty
                    (if (nil? value)
-                     (throw (IllegalArgumentException. "missing expression in :else clause"))
+                     (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "missing expression in :else clause"))
                      `(let [result# (do ~@value)] result#)))
                  ;; Recurse into the rest of the lines before processing each branch,
                  ;; because we will be unrolling the results into the else positions of
@@ -78,18 +78,19 @@
                  (let [exp (cond-loop others)]
                    ;; nil branch
                    (if (nil? value)
-                     `(let [result# ~test-expr]
-                        (if result# result# ~exp))
+                     `(if-let [result# (do ~test-expr)]
+                        result#
+                        ~exp)
                      ;; :> needs to be in the first position of the value form to be
                      ;; properly handled
                      (if (#{'=> :>} (first value))
                        ;; :> branch needs exactly 1 additional form
                        (if (= 2 (count value))
-                         `(if-let [result# ~test-expr]
+                         `(if-let [result# (do ~test-expr)]
                             ;; Call the function with the result of the test-expr
                             (~(second value) result#)
                             ~exp)
-                         (throw (IllegalArgumentException. "bad :> clause")))
+                         (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "bad :> clause")))
                        ;; everything else, aka a test and then any number of forms
                        ;; wrapped in a do
                        `(if ~test-expr

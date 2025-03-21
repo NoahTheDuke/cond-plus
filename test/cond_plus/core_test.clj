@@ -1,7 +1,7 @@
 (ns cond-plus.core-test
   (:require
-   [cond-plus.core :refer [cond+ => else]]
-   [lazytest.core :refer [defdescribe expect it causes-with-msg?]]
+   [cond-plus.core :refer [=> cond+ else]]
+   [lazytest.core :refer [causes-with-msg? defdescribe expect it ok?]]
    [lazytest.experimental.interfaces.clojure-test :refer [are deftest]]))
 
 (defdescribe cond-branch
@@ -93,7 +93,13 @@
       (expect (= 1 (cond+
                     [(swap! view not)]
                     [1])))
-      (expect (false? @view)))))
+      (expect (false? @view))))
+  (it "rejects recur"
+    (expect (causes-with-msg?
+              clojure.lang.Compiler$CompilerException
+              #"Syntax error"
+              #(eval `(defn ~'hello [a#]
+                        (cond+ [(recur (inc a#))])))))))
 
 (defdescribe fn-branch
   (it "calls given function on result of first true test"
@@ -123,7 +129,9 @@
               #(eval
                 `(cond+ [1 :> inc inc])))))
   (it "accepts symbol form"
-    (expect (= 1 (cond+ [[1 2 3] => first])))))
+    (expect (= 1 (cond+ [[1 2 3] => first]))))
+  (it "allows recur"
+    (expect (ok? #(eval `(cond+ [true :> (fn [b#] (when b# (recur (not b#))))]))))))
 
 (defdescribe else-branch
   (it "always returns body"
@@ -173,7 +181,14 @@
   (it "accepts symbol form"
     (expect (= :first (cond+
                        [false :zero]
-                       [else :first])))))
+                       [else :first]))))
+  (it "rejects recur"
+    (expect (causes-with-msg?
+              clojure.lang.Compiler$CompilerException
+              #"Syntax error"
+              #(eval `(defn ~'hello [a#]
+                        (cond+ [(pos? a#) :> (fn [x#] (* x# 2))]
+                               [:else (recur (inc a#))])))))))
 
 (defdescribe combinations
   (it "Can combine different branch types"
