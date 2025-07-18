@@ -22,3 +22,6 @@ test-all *args="--output summary":
     clojure -M:v1.10:test:runner --md README.md {{args}}
     clojure -M:v1.11:test:runner --md README.md {{args}}
     clojure -M:v1.12:test:runner --md README.md {{args}}
+
+@clojars:
+    env CLOJARS_USERNAME='noahtheduke' CLOJARS_PASSWORD=`cat ../clojars.txt` clojure -M:clein deploy
