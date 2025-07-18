@@ -23,9 +23,9 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@12.5
+        uses: DeLaGuardo/setup-clojure@13.4
         with:
-          cli: 1.11.4.1474
+          cli: 1.12.1.1550
 
       - name: Cache clojure dependencies
         uses: actions/cache@v4
@@ -37,4 +37,4 @@ jobs:
           restore-keys: cljdeps-
 
       - name: tests
-        run: clojure -M:test:ci
+        run: clojure -M:v1.12:test:ci

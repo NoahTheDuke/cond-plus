@@ -12,3 +12,5 @@ pom.xml.asc
 .hg/
 .cache
 .cpcache
+.rebel_readline_history
+tags

@@ -1,7 +1,12 @@
 # Change Log
 
 ## Unreleased
+
+## 1.3.0 - 2025-07-18
+- BREAKING CHANGE: move group/id to `io.github.noahtheduke/cond-plus`, change primary namespace to `noahtheduke.cond-plus`.
+- Update clj-kondo hook to use new group/id.
 - Use reader conditionals to work in cljs.
+- Add MPL 2.0 headers to all files.
 
 ## 1.2.0 - 2024-10-23
 - Switch license to MPL 2.0.

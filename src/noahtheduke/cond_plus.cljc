@@ -1,4 +1,8 @@
-(ns cond-plus.core
+; This Source Code Form is subject to the terms of the Mozilla Public
+; License, v. 2.0. If a copy of the MPL was not distributed with this
+; file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+(ns noahtheduke.cond-plus
   #?(:clj (:import
            (java.lang IllegalArgumentException))))
 
@@ -63,7 +67,7 @@
              ;; 3. any number of forms, where the first is not :>
              (let [test-expr (first line)
                    value (next line)]
-               ;; else should be in the final position
+               ;; :else branch:
                (if (#{'else :else} test-expr)
                  ;; Else branch needs to be in final place
                  (if (seq others)
@@ -71,16 +75,17 @@
                    ;; Else branch can't be empty
                    (if (nil? value)
                      (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "missing expression in :else clause"))
-                     `(let [result# (do ~@value)] result#)))
+                     `(do ~@value)))
                  ;; Recurse into the rest of the lines before processing each branch,
                  ;; because we will be unrolling the results into the else positions of
                  ;; each branch
                  (let [exp (cond-loop others)]
-                   ;; nil branch
+                   ;; a single expression: [foo] or [(foo)]
                    (if (nil? value)
                      `(if-let [result# (do ~test-expr)]
                         result#
                         ~exp)
+                     ;; fn branch: [foo :> some-func]
                      ;; :> needs to be in the first position of the value form to be
                      ;; properly handled
                      (if (#{'=> :>} (first value))
@@ -94,6 +99,6 @@
                        ;; everything else, aka a test and then any number of forms
                        ;; wrapped in a do
                        `(if ~test-expr
-                          (let [result# (do ~@value)] result#)
+                          (do ~@value)
                           ~exp))))))))))]
     (cond-loop clauses)))
