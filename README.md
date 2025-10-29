@@ -38,7 +38,6 @@ NOTE: with v1.3.0, the clojars group/artifact id is now `io.github.noahtheduke/c
 => [2 3]
 ```
 
-
 ## License
 
 Copyright © Noah Bogart
