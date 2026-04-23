@@ -2,7 +2,7 @@
 ; License, v. 2.0. If a copy of the MPL was not distributed with this
 ; file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-(ns noahtheduke.cond-plus-test
+(ns com.noahbogart.cond-plus-test
   (:require
    [noahtheduke.cond-plus :refer [=> cond+ else]]
    [lazytest.core :refer [causes-with-msg? defdescribe expect it ok?]]

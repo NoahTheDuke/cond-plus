@@ -2,7 +2,8 @@
 ; License, v. 2.0. If a copy of the MPL was not distributed with this
 ; file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-(ns noahtheduke.cond-plus
+(ns com.noahbogart.cond-plus
+  #?(:cljs (:require-macros com.noahbogart.cond-plus))
   #?(:clj (:import
            (java.lang IllegalArgumentException))))
 

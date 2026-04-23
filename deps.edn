@@ -21,14 +21,14 @@
 
   :v1.10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.3"}}}
   :v1.11 {:override-deps {org.clojure/clojure {:mvn/version "1.11.4"}}}
-  :v1.12 {:override-deps {org.clojure/clojure {:mvn/version "1.12.1"}}}
+  :v1.12 {:override-deps {org.clojure/clojure {:mvn/version "1.12.4"}}}
 
   ;; Build a jar or uberjar with `-M:clein jar/uberjar`
   :clein {:deps {io.github.noahtheduke/clein {:mvn/version "0.4.1"}}
           :main-opts ["-m" "noahtheduke.clein"]}
   :clein/build
-  {:lib io.github.noahtheduke/cond-plus
-   :main noahtheduke.cond-plus
+  {:lib com.noahbogart/cond-plus
+   :main com.noahbogart.cond-plus
    :url "https://github.com/noahtheduke/cond-plus"
    :version "1.3.0"
    :src-dirs ["src"]
