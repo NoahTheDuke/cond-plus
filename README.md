@@ -3,11 +3,14 @@
 [![Clojars Project](https://img.shields.io/clojars/v/io.github.noahtheduke/cond-plus.svg)](https://clojars.org/io.github.noahtheduke/cond-plus)
 [![cljdoc badge](https://cljdoc.org/badge/io.github.noahtheduke/cond-plus)](https://cljdoc.org/d/io.github.noahtheduke/cond-plus)
 
+> [!CAUTION]
+> The new location for this repo is https://tangled.org/noahbogart.com/cond-plus
+>
+> I am (slowly) moving all of my projects off of Github, so this repo is archived to prevent confusion. I am updating the namespace + clojars group/artifact as well.
+
 An adaption of the Racket `cond` macro for Clojure.
 
 Details can be found in the [docs](doc/intro.md).
-
-NOTE: with v1.3.0, the clojars group/artifact id is now `io.github.noahtheduke/cond-plus` and the primary namespace is now `noahtheduke.cond-plus`. Please update your dependencies accordingly.
 
 ## Example
 
