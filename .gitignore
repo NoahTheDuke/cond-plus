@@ -14,3 +14,7 @@ pom.xml.asc
 .cpcache
 .rebel_readline_history
 tags
+out/
+public/
+.shadow-cljs/
+node_modules/

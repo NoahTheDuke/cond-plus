@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.4.0 - 2026-04-28
+- BREAKING CHANGE: move group/id to `com.noahbogart/cond-plus`, change primary namespace to `com.noahbogart.cond-plus`.
+- Clean up clj-kondo hook, add clj-kondo-specific tests.
+- Clean up clojurescript support, add cljs tests.
+
 ## 1.3.0 - 2025-07-18
 - BREAKING CHANGE: move group/id to `io.github.noahtheduke/cond-plus`, change primary namespace to `noahtheduke.cond-plus`.
 - Update clj-kondo hook to use new group/id.

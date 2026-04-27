@@ -3,9 +3,7 @@
 ; file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 (ns com.noahbogart.cond-plus
-  #?(:cljs (:require-macros com.noahbogart.cond-plus))
-  #?(:clj (:import
-           (java.lang IllegalArgumentException))))
+  #?(:cljs (:require-macros com.noahbogart.cond-plus)))
 
 #_{:clj-kondo/ignore [:uninitialized-var]}
 (def ^{:doc "Only useful to silence linter errors."} =>)
@@ -55,7 +53,7 @@
            ;; Only accept lines wrapped in () or []
            (if-not (or (list? line)
                        (vector? line))
-             (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "clause is not in a vector"))
+             (throw (ex-info "clause is not in a vector" {}))
              ;; Because a line is a sequence, we'll step through the line form by form.
              ;; The first form is called text-expr, and then we call next on the rest
              ;; of the forms, and call the result value.
@@ -72,10 +70,10 @@
                (if (#{'else :else} test-expr)
                  ;; Else branch needs to be in final place
                  (if (seq others)
-                   (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) ":else not last"))
+                   (throw (ex-info ":else not last" {}))
                    ;; Else branch can't be empty
                    (if (nil? value)
-                     (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "missing expression in :else clause"))
+                     (throw (ex-info "missing expression in :else clause" {}))
                      `(do ~@value)))
                  ;; Recurse into the rest of the lines before processing each branch,
                  ;; because we will be unrolling the results into the else positions of
@@ -96,7 +94,7 @@
                             ;; Call the function with the result of the test-expr
                             (~(second value) result#)
                             ~exp)
-                         (throw (#?(:clj IllegalArgumentException. :cljs js/Error.) "bad :> clause")))
+                         (throw (ex-info "bad :> clause" {})))
                        ;; everything else, aka a test and then any number of forms
                        ;; wrapped in a do
                        `(if ~test-expr

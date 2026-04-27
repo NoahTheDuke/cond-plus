@@ -1,18 +1,16 @@
-# cond-plus
+# com.noahbogart/cond-plus
 
-[![Clojars Project](https://img.shields.io/clojars/v/io.github.noahtheduke/cond-plus.svg)](https://clojars.org/io.github.noahtheduke/cond-plus)
-[![cljdoc badge](https://cljdoc.org/badge/io.github.noahtheduke/cond-plus)](https://cljdoc.org/d/io.github.noahtheduke/cond-plus)
+[![Clojars Project](https://img.shields.io/clojars/v/com.noahbogart/cond-plus.svg)](https://clojars.org/com.noahbogart/cond-plus)
+[![cljdoc badge](https://cljdoc.org/badge/com.noahbogart/cond-plus)](https://cljdoc.org/d/com.noahbogart/cond-plus)
 
 An adaption of the Racket `cond` macro for Clojure.
 
 Details can be found in the [docs](doc/intro.md).
 
-NOTE: with v1.3.0, the clojars group/artifact id is now `io.github.noahtheduke/cond-plus` and the primary namespace is now `noahtheduke.cond-plus`. Please update your dependencies accordingly.
-
 ## Example
 
 ```clojure
-(require '[noahtheduke.cond-plus :refer [cond+]])
+(require '[com.noahbogart.cond-plus :refer [cond+]])
 
 (cond+)
 => nil
