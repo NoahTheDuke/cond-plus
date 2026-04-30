@@ -18,6 +18,7 @@ test-clj *args="--output summary":
     just clojure-lsp
     just test-clj-raw {{args}}
 
+[no-exit-message]
 test-cljs:
     npx shadow-cljs compile node-test
     node target/shadow-node-test/node-tests.js
