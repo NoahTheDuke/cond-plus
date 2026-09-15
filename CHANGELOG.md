@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.4.1 - 2026-09-15
+
 - Fix clj-kondo hook to allow `[:else nil]`.
 
 ## 1.4.0 - 2026-04-28

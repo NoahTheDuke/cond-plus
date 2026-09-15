@@ -35,7 +35,7 @@
   {:lib com.noahbogart/cond-plus
    :main com.noahbogart.cond-plus
    :url "https://tangled.org/noahbogart.com/cond-plus"
-   :version "1.4.0"
+   :version "1.4.1"
    :src-dirs ["src"]
    :resource-dirs ["resources"]
    :license {:name "MPL-2.0"
