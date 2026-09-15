@@ -48,6 +48,9 @@
   (expect-it "else allows recur"
     (empty?
      (lint "(defn hello [a] (cond+ [(pos? a) :> (fn [x] (* x 2))] [:else (recur (inc a))]))")))
+  (expect-it "else allows body of nil"
+    (empty?
+     (lint "(cond+ [false :first] [:else nil])")))
   (expect-it "branch doesn't allow recur"
     (empty?
      (lint "(defn hello [a] (cond+ [(recur (inc a))]))"))))
