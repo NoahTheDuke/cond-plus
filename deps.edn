@@ -14,7 +14,7 @@
                       "-f" "rebel-readline.main/-main"]}
   :dev {}
   :test {:extra-paths ["test"]
-         :extra-deps {io.github.noahtheduke/lazytest {:mvn/version "1.8.0"}
+         :extra-deps {io.github.noahtheduke/lazytest {:mvn/version "2.1.0"}
                       babashka/process {:mvn/version "0.6.25"}
                       clj-kondo/clj-kondo {:mvn/version "2026.01.19"}
                       nubank/matcher-combinators {:mvn/version "3.10.0"}}}
