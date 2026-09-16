@@ -5,8 +5,9 @@
 (ns com.noahbogart.cond-plus-test
   (:require
    [com.noahbogart.cond-plus :refer [=> cond+ else]]
+   #?(:clj [lazytest.expectation-failed :refer [->ExpectationFailed]])
    #?(:clj [lazytest.experimental.interfaces.clojure-test :refer [are deftest testing is]]
-      :cljs [clojure.test :refer [are deftest testing is]]))
+      :cljs [cljs.test :refer [are deftest testing is]]))
   #?(:clj (:import
            [clojure.lang ExceptionInfo])))
 
@@ -39,14 +40,22 @@
                    causes) true
              (some #(instance? c %) causes)
              (let [found (some #(when (instance? c %) %) causes)
-                   msg #?(:clj (format "%s found but not with expected message"
-                                       (.getName ^Class c))
-                          :cljs (str (type c) "found but not with expected message"))]
-               (throw (ex-info msg {:found found})))
+                   msg (str #?(:clj (.getName ^Class c)
+                               :cljs (type c))
+                            " found but not with expected message: "
+                            "\"" (ex-message found) "\"")]
+               (throw #?(:clj (ex-info
+                               msg
+                               {:message msg
+                                :file *file*
+                                :ns (ns-name *ns*)
+                                :expected (list 're-find re (ex-message found))
+                                :actual (ex-message found)})
+                         :cljs (ex-info msg {:found found}))))
              :else
              (throw t))))))
 
-(deftest cond-branch
+(deftest cond-branch-test
   (testing "returns nil when given no input"
     (is (nil? (cond+))))
   (testing "returns nil when clauses are empty"
@@ -122,7 +131,7 @@
                 [(> 3 3) :less]
                 ((= 3 3) :equal))))))
 
-(deftest no-body-branch
+(deftest no-body-branch-test
   (testing "returns first true test"
     (is (= [1 2 3] (cond+ [(seq [1 2 3])])))
     (is (= 1 (cond+ [1])))
@@ -143,7 +152,7 @@
                   #(eval `(defn ~'hello [a#]
                             (cond+ [(recur (inc a#))]))))))))
 
-(deftest fn-branch
+(deftest fn-branch-test
   (testing "calls given function on result of first true test"
     (is (= 1 (cond+ [[1 2 3] :> first])))
     (is (= 2 (cond+ [(next [1 2 3]) :> first])))
@@ -176,7 +185,7 @@
     (is (nil? (#(cond+ [true :> (fn [b#] (when b# (recur (not b#))))]))))
     (is (= 1 (cond+ [0 :> (fn [b] (if (zero? b) (recur (inc b)) b))])))))
 
-(deftest else-branch
+(deftest else-branch-test
   (testing "always returns body"
     (is (= :first (cond+ [:else :first]))))
   (testing "returns body when other branches are falsey"
@@ -230,7 +239,7 @@
                            (cond+ [(pos? a#) :> (fn [x#] (* x# 2))]
                                   [:else (recur (inc a#))]))))))))
 
-(deftest combinations
+(deftest combinations-test
   (testing "Can combine different branch types"
     (let [view (atom true)]
       (is (= :second
@@ -240,6 +249,16 @@
                   [(swap! view not)]
                   [:else :second])))
       (is (false? @view)))))
+
+#?(:clj
+   (deftest macroexpansion-test
+     (testing "expands later branches after initial branches"
+       (is (causes-with-msg?
+             clojure.lang.ExceptionInfo
+             #"bad :> clause"
+             #(eval `(cond+
+                      [true :>]
+                      [:else])))))))
 
 ;; Adapted from Clojure Core
 (defn maintains-identity [f]

@@ -12,7 +12,7 @@
 (def ^{:doc "Only useful to silence linter errors."} else)
 
 (defmacro cond+
-  "Takes any number of clauses, which must be lists or vectors. The `test-expr` of the first clause is evaluated. If it's a logical true value (or the bare symbol `else`), then the rest of the clause is evaluated as described below and the resulting value is returned. Otherwise, repeat these steps for the next clauses. `(cond+)` returns `nil`.
+  "Takes any number of clauses, which must be lists or vectors. The `test-expr` of the first clause is evaluated. If it's a logical true value (or the keyword `:else`), then the rest of the clause is evaluated as described below and the resulting value is returned. Otherwise, repeat these steps for the next clauses. `(cond+)` returns `nil`.
 
   ```
   clause = [test-expr & body]
@@ -37,8 +37,7 @@
   ### `[:else & body]`
   Evaluates `body` in an implicit `do`.
 
-  If an `:else` is not the last `cond-clause`, an `IllegalArgumentError` is
-  thrown.  If a `body` is not included, an `IllegalArgumentError` is thrown.
+  If an `:else` is not the last `cond-clause`, an exception is thrown.  If a `body` is not included, an exception is thrown.
 
   `else` can be used instead of `:else`."
   [& clauses]
@@ -75,15 +74,11 @@
                    (if (nil? value)
                      (throw (ex-info "missing expression in :else clause" {}))
                      `(do ~@value)))
-                 ;; Recurse into the rest of the lines before processing each branch,
-                 ;; because we will be unrolling the results into the else positions of
-                 ;; each branch
-                 (let [exp (cond-loop others)]
-                   ;; a single expression: [foo] or [(foo)]
+                 ;; a single expression: [foo] or [(foo)]
                    (if (nil? value)
                      `(if-let [result# (do ~test-expr)]
                         result#
-                        ~exp)
+                        ~(cond-loop others))
                      ;; fn branch: [foo :> some-func]
                      ;; :> needs to be in the first position of the value form to be
                      ;; properly handled
@@ -93,11 +88,11 @@
                          `(if-let [result# (do ~test-expr)]
                             ;; Call the function with the result of the test-expr
                             (~(second value) result#)
-                            ~exp)
+                            ~(cond-loop others))
                          (throw (ex-info "bad :> clause" {})))
                        ;; everything else, aka a test and then any number of forms
                        ;; wrapped in a do
                        `(if ~test-expr
                           (do ~@value)
-                          ~exp))))))))))]
+                          ~(cond-loop others))))))))))]
     (cond-loop clauses)))
