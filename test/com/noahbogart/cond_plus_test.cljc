@@ -156,7 +156,7 @@
   (testing "calls given function on result of first true test"
     (is (= 1 (cond+ [[1 2 3] :> first])))
     (is (= 2 (cond+ [(next [1 2 3]) :> first])))
-    (is (= [-2 -3] (cond+ [(next [1 2 3]) :> (fn [x] (map - x))])))
+    (is (= [-2 -3] (cond+ [(next [1 2 3]) :> (fn [x] (mapv - x))])))
     (is (= 2 (cond+ [(:key {:key 1}) :> inc])))
     (is (= 2 (cond+
                   [(:key {:key 1}) :> inc]

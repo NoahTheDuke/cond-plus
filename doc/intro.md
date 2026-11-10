@@ -53,7 +53,7 @@ The simple symbol `else` can be used instead of `:else`.
 => :here
 
 (cond+
- [(next [1 2 3]) :> (fn [x] (map - x))])
+ [(next [1 2 3]) :> (fn [x] (mapv - x))])
 => [-2 -3]
 
 (cond+
